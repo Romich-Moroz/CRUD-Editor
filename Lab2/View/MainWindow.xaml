@@ -1,0 +1,131 @@
+﻿<Window x:Class="Lab2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        xmlns:local="clr-namespace:Lab2"
+        mc:Ignorable="d"
+        Title="Lab2" Height="680" Width="600">
+
+    <Window.Resources>
+        <local:EnumToStringConverter x:Key="EnumToStringsConverter"/>
+        <local:PropertyDataTemplateSelector x:Key="TemplateSelector"/>
+        <local:FieldMetadataConverter x:Key="FieldMetadataConverter"/>
+        <local:ComponentNameConverter x:Key="ComponentNameConverter"/>
+        <local:ComponentFilter x:Key="ComponentFilter"/>
+        <local:ValueToVisibilityConverter x:Key="ValueToVisibilityConverter"/>
+        <local:ComputerItemToNameConverter x:Key="ComputerItemToNameConverter"/>
+        <!-- Supplied type of this templates is ComponentField -->
+        <!-- Default template for strings and numeric values -->
+        <DataTemplate x:Key="DefaultDataTemplate">
+        <StackPanel>
+            <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0" />
+            <TextBox Text="{Binding fieldValue, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        </DataTemplate>
+        <!-- Default template for boolean values -->
+        <DataTemplate x:Key="BooleanDataTemplate">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding fieldValue}" Content="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}"/>
+            </StackPanel>
+        </DataTemplate>
+        <!-- Default template for enums -->
+        <DataTemplate x:Key="EnumerableDataTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0"/>
+                <ComboBox SelectedValue="{Binding fieldValue}" ItemsSource="{Binding Converter={StaticResource EnumToStringsConverter}}" />
+            </StackPanel>
+        </DataTemplate>
+        <!-- Default template for class selection values -->
+        <DataTemplate x:Key="ComponentSelectionDataTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0"/>
+                <ComboBox SelectedValue="{Binding fieldValue}" ItemsSource="{Binding RelativeSource={RelativeSource FindAncestor,AncestorType={x:Type Window}}, Path=DataContext.ComponentCollection,UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource ValueToVisibilityConverter}}">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource ComponentFilter}">
+                                        <Binding />
+                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ComboBox}}" Path="DataContext.fieldInfo.FieldType"/>
+                                        <Binding RelativeSource="{RelativeSource Self}"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <!--Definition of colums-->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="4*"/>
+        </Grid.ColumnDefinitions>
+        <!--Left column content-->
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="0">
+            <StackPanel>
+                <TextBlock Text="Computers List" Margin="4" HorizontalAlignment="Center" FontWeight="Bold"/>
+                <TreeView x:Name="ComputersList" ItemsSource="{Binding ComputerCollection}" SelectedItemChanged="ComputersList_SelectedItemChanged">
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Fields}">
+                            <TextBlock Text="{Binding Converter={StaticResource ComputerItemToNameConverter}}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </StackPanel>
+        </Border>
+        <!--Right column content-->
+        <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1">
+            <StackPanel>
+                <!--Properties explorer content-->
+                <TextBlock Text="Properties Explorer" Margin="4" HorizontalAlignment="Center" FontWeight="Bold"/>
+                <!--Component creation fields-->
+                <TextBlock Text="Select component type" Margin="4 0 4 0"/>
+                <ComboBox Margin="4 0 4 0" ItemsSource="{Binding CreatableTypes}" SelectedValue="{Binding SelectedComponentType}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource FieldMetadataConverter}}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+
+                <!--Existing components selection-->
+                <Button Content="Create" Margin="4" Command="{Binding CreateCommand}" CommandParameter="{Binding SelectedComponentType}"/>
+                <TextBlock Text="Select existing component" Margin="4 0 4 0"/>
+                <ComboBox Margin="4 0 4 0" ItemsSource="{Binding ComponentCollection}" SelectedValue="{Binding SelectedComponentInstance}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Visibility="{Binding RelativeSource={RelativeSource Self}, Path=Text, Converter={StaticResource ValueToVisibilityConverter}}">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource ComponentFilter}">
+                                        <Binding />
+                                        <Binding RelativeSource="{RelativeSource FindAncestor,AncestorType={x:Type Window}}" Path="DataContext.SelectedComponentType"/>
+                                        <Binding RelativeSource="{RelativeSource Self}"/>
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Grid Margin="0 0 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Update" Grid.Column="0" Margin="4" Command="{Binding UpdateCommand}" CommandParameter="{Binding SelectedComponentInstance}"/>
+                    <Button Content="Delete" Grid.Column="1" Margin="4" Command="{Binding DeleteCommand}" CommandParameter="{Binding SelectedComponentInstance}"/>
+                </Grid>
+                
+                <TextBlock Text="Selected component properties" HorizontalAlignment="Center"/>
+                <!--Generated properties list box-->
+                <ListView x:Name="PropertiesListBox" ItemsSource="{Binding SelectedComponentFieldsList}" ItemTemplateSelector="{StaticResource TemplateSelector}" HorizontalContentAlignment="Stretch" BorderThickness="0" Margin="2 0 2 0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
