@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "RAM")]
+    [System.Serializable]
     class RandomAccessMemory : Component
     {
         #region privateFields

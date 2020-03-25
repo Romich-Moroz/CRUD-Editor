@@ -4,6 +4,7 @@ using System.Reflection;
 
 namespace Lab2
 {
+    [System.Serializable]
     /// <summary>
     /// Base class for all components of computer
     /// </summary>

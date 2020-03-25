@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "CPU")]
+    [System.Serializable]
     class CentralProcessingUnit : Component
     {
         #region Private Fields

@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Reflection;
-
-namespace Lab2
+﻿namespace Lab2
 {
     [FieldName(FieldName = "Computer")]
+    [System.Serializable]
     class Computer : Component
     {
 

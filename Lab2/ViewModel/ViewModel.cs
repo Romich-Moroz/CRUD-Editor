@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace Lab2
 {
@@ -31,6 +33,16 @@ namespace Lab2
         /// </summary>
         public ICommand DeleteCommand { get; set; }
 
+        /// <summary>
+        /// Defines an action to do on Save command
+        /// </summary>
+        public ICommand SaveCommand { get; set; }
+
+        /// <summary>
+        /// Defines an action to do on Open command
+        /// </summary>
+        public ICommand OpenCommand { get; set; }
+
         #endregion
 
         /// <summary>
@@ -41,6 +53,8 @@ namespace Lab2
             this.CreateCommand = new RelayCommand<Type>(CreateComponent, CanCreateComponent);
             this.UpdateCommand = new RelayCommand<Component>(UpdateComponent, CanUpdateComponent);
             this.DeleteCommand = new RelayCommand<Component>(DeleteComponent, CanDeleteComponent);
+            this.SaveCommand = new RelayCommand<ObservableCollection<Component>>(SaveComponentCollection, null);
+            this.OpenCommand = new RelayCommand<object>(OpenComponentCollection, null);
         }
 
         #region Properties      
@@ -111,7 +125,7 @@ namespace Lab2
         public ObservableCollection<ComputerItem> ComputerCollection { get; set; } = new ObservableCollection<ComputerItem>();
 
         /// <summary>
-        /// Defines all available components to create
+        /// Defines all available components that could be created
         /// </summary>
         public ObservableCollection<Type> CreatableTypes { get; private set; } = Model.GetCreatableTypesCollection(typeof(Computer),typeof(Component));
 
@@ -274,6 +288,46 @@ namespace Lab2
             {
                 SelectedComponentType = (value as ComponentField).fieldInfo.FieldType;
                 SelectedComponentInstance = (value as ComponentField).fieldValue as Component;
+            }
+        }
+
+        /// <summary>
+        /// Saves component collection as deserializable stream based on chosen serialization type
+        /// </summary>
+        /// <param name="collection">Collection to serialize</param>
+        private void SaveComponentCollection(ObservableCollection<Component> collection)
+        {
+            SaveFileDialog fd = new SaveFileDialog();
+            fd.Filter = "Binary serialization file (*.bin)|*.bin|Xml serialization file (*.xml)|*.xml|Custom serialization file (*.csf)|*.csf";
+            fd.InitialDirectory = Directory.GetCurrentDirectory();
+            if (fd.ShowDialog() == true)
+            {
+                ISerializer s = SerializerFactory.Create<BinarySerializer>();
+                s.Serialize(fd.OpenFile(), collection);
+            }
+        }
+
+        /// <summary>
+        /// Opens component collection as serializable stream based on chosen serialization type
+        /// </summary>
+        private void OpenComponentCollection(object dummy)
+        {
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Binary serialization file (*.bin)|*.bin|Xml serialization file (*.xml)|*.xml|Custom serialization file (*.csf)|*.csf";
+            fd.InitialDirectory = Directory.GetCurrentDirectory();
+            if (fd.ShowDialog() == true)
+            {
+                ISerializer s = SerializerFactory.Create<BinarySerializer>();
+                ComponentCollection = s.Deserialize(fd.OpenFile()) as ObservableCollection<Component>;
+                ComputerCollection = new ObservableCollection<ComputerItem>();
+                foreach (Component c in ComponentCollection)
+                {
+                    if (c.GetType() == typeof(Computer))
+                    {
+                        ComputerCollection.Add(new ComputerItem(c as Computer, new ObservableCollection<ComponentField>(Model.GetAllFieldsOfComponentByTypeName(CreatableTypes, c.GetType().Name).Select(f => new ComponentField(f, f.GetValue(c))))));
+                    }
+                }
+                
             }
         }
         

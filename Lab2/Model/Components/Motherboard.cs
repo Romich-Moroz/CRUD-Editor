@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "Motherboard")]
+    [System.Serializable]
     class Motherboard : Component
     {
         #region Private Fields

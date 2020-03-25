@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "GPU")]
+    [System.Serializable]
     class GraphicsProcessingUnit : Component
     {
         #region Private Fields

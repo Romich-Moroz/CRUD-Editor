@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "Storage")]
+    [System.Serializable]
     class Storage : Component
     {
         #region Private Fields

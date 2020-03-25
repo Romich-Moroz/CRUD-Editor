@@ -1,6 +1,7 @@
 ﻿namespace Lab2
 {
     [FieldName(FieldName = "Power supply")]
+    [System.Serializable]
     class PowerSupply : Component
     {
         #region Private Fields
