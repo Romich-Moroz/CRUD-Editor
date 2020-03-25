@@ -17,12 +17,24 @@
         <local:ValueToVisibilityConverter x:Key="ValueToVisibilityConverter"/>
         <local:ComputerItemToNameConverter x:Key="ComputerItemToNameConverter"/>
         <!-- Supplied type of this templates is ComponentField -->
-        <!-- Default template for strings and numeric values -->
+        <!-- Default template for strings -->
         <DataTemplate x:Key="DefaultDataTemplate">
-        <StackPanel>
-            <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0" />
-            <TextBox Text="{Binding fieldValue, UpdateSourceTrigger=PropertyChanged}"/>
-        </StackPanel>
+            <StackPanel>
+                <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0" />
+                <TextBox Text="{Binding fieldValue, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="IntDataTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0" />
+                <TextBox Text="{Binding fieldValue, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="TextBox_PreviewKeyDownInt"/>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="DoubleDataTemplate">
+            <StackPanel>
+                <TextBlock Text="{Binding fieldInfo, Converter={StaticResource FieldMetadataConverter}}" Margin="2 0 2 0" />
+                <TextBox Text="{Binding fieldValue, UpdateSourceTrigger=PropertyChanged}" PreviewKeyDown="TextBox_PreviewKeyDownDouble"/>
+            </StackPanel>
         </DataTemplate>
         <!-- Default template for boolean values -->
         <DataTemplate x:Key="BooleanDataTemplate">
@@ -94,7 +106,6 @@
                     </ComboBox.ItemTemplate>
                 </ComboBox>
 
-
                 <!--Existing components selection-->
                 <Button Content="Create" Margin="4" Command="{Binding CreateCommand}" CommandParameter="{Binding SelectedComponentType}"/>
                 <TextBlock Text="Select existing component" Margin="4 0 4 0"/>
@@ -121,7 +132,6 @@
                     <Button Content="Update" Grid.Column="0" Margin="4" Command="{Binding UpdateCommand}" CommandParameter="{Binding SelectedComponentInstance}"/>
                     <Button Content="Delete" Grid.Column="1" Margin="4" Command="{Binding DeleteCommand}" CommandParameter="{Binding SelectedComponentInstance}"/>
                 </Grid>
-                
                 <TextBlock Text="Selected component properties" HorizontalAlignment="Center"/>
                 <!--Generated properties list box-->
                 <ListView x:Name="PropertiesListBox" ItemsSource="{Binding SelectedComponentFieldsList}" ItemTemplateSelector="{StaticResource TemplateSelector}" HorizontalContentAlignment="Stretch" BorderThickness="0" Margin="2 0 2 0"/>

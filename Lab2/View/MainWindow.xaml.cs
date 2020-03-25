@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 
 namespace Lab2
 {
@@ -16,6 +17,22 @@ namespace Lab2
         private void ComputersList_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
             (DataContext as ViewModel).TreeViewUpdateProperties(e.NewValue);
+        }
+
+        private void TextBox_PreviewKeyDownInt(object sender, KeyEventArgs e)
+        {
+            if (((e.Key < Key.D0) || (e.Key > Key.D9)) && (e.Key != Key.Back))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void TextBox_PreviewKeyDownDouble(object sender, KeyEventArgs e)
+        {
+            if (((e.Key < Key.D0) || (e.Key > Key.D9)) && (e.Key != Key.Back) && (e.Key != Key.OemPeriod))
+            {
+                e.Handled = true;
+            }
         }
     }
 }

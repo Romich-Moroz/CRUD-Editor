@@ -129,14 +129,22 @@ namespace Lab2
         /// </summary>
         /// <param name="t"></param>
         private void CreateComponent(Type t)
-        {
-            Component c = Model.CreateComponent(t, SelectedComponentFieldsList.Select(field => field.fieldValue).ToArray());
-            ComponentCollection.Add(c);
-            if (c.GetType() == typeof(Computer))
+        {           
+            Component comp = Model.CreateComponent(t, SelectedComponentFieldsList.Select(field => field.fieldValue).ToArray());
+            if (ComponentCollection.Where(c => c.GetName() == comp.GetName() && c.GetType() == t).Count() == 0)
             {
-                ComputerCollection.Add(new ComputerItem(c as Computer, SelectedComponentFieldsList));
+                ComponentCollection.Add(comp);
+                if (comp.GetType() == typeof(Computer))
+                {
+                    ComputerCollection.Add(new ComputerItem(comp as Computer, SelectedComponentFieldsList));
+                }
+                FilteredComponentsCollection = FilterCollectionByType(ComponentCollection, SelectedComponentType);
             }
-            FilteredComponentsCollection = FilterCollectionByType(ComponentCollection, SelectedComponentType);
+            else
+            {
+                MessageBox.Show("Component of such type with such name is already added!", "Error", MessageBoxButton.OK);
+            }
+            
         }
 
         /// <summary>
@@ -187,7 +195,7 @@ namespace Lab2
         {
 
             int index = 0;
-            if (t is Computer) //Required to find match so in computer collection because it might be impossible to find it after update call
+            if (t is Computer) //Required to find match in computer collection because it might be impossible to find it after update call
             {
                 index = ComputerCollection.IndexOf(ComputerCollection.Single(i => i.Pc == t));
             }

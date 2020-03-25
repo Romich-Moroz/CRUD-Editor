@@ -29,6 +29,14 @@ namespace Lab2
             {
                 return f.FindResource("ComponentSelectionDataTemplate") as DataTemplate;
             }
+            if (fi.FieldType == typeof(int))
+            {
+                return f.FindResource("IntDataTemplate") as DataTemplate;
+            }
+            if (fi.FieldType == typeof(double))
+            {
+                return f.FindResource("DoubleDataTemplate") as DataTemplate;
+            }
             return f.FindResource("DefaultDataTemplate") as DataTemplate;
         }
     }
