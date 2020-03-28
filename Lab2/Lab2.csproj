@@ -59,6 +59,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -85,10 +86,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\Attributes\SerializationAttribute.cs" />
     <Compile Include="Model\Components\CentralProcessingUnit.cs" />
     <Compile Include="Model\Components\Computer.cs" />
     <Compile Include="Model\Attributes\FieldNameAttribute.cs" />
-    <Compile Include="Model\Factories\SerializerFactory.cs" />
     <Compile Include="Model\Interfaces\Component.cs" />
     <Compile Include="Model\Components\GraphicsProcessingUnit.cs" />
     <Compile Include="Model\Components\Storage.cs" />
@@ -98,6 +99,8 @@
     <Compile Include="Model\Interfaces\ISerializer.cs" />
     <Compile Include="Model\Model.cs" />
     <Compile Include="Model\Serializers\BinarySerializer.cs" />
+    <Compile Include="Model\Serializers\CustomSerializer.cs" />
+    <Compile Include="Model\Serializers\XmlSerializer.cs" />
     <Compile Include="ViewModel\Commands\RelayCommand.cs" />
     <Compile Include="ViewModel\Converters\ComponentFilter.cs" />
     <Compile Include="ViewModel\Converters\ComponentNameConverter.cs" />

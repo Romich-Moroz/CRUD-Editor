@@ -1,8 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Lab2
 {
+    [Serialization(TypeDescription = "Binary serialization file(*.bin)|*.bin")]
     class BinarySerializer : ISerializer
     {
         /// <summary>
@@ -10,10 +12,10 @@ namespace Lab2
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        public object Deserialize(Stream s)
+        public T Deserialize<T>(Stream s)
         {
             BinaryFormatter bf = new BinaryFormatter();
-            object tmp =  bf.Deserialize(s);
+            T tmp =  (T)bf.Deserialize(s);
             s.Close();
             return tmp;
         }
@@ -23,7 +25,7 @@ namespace Lab2
         /// </summary>
         /// <param name="s"></param>
         /// <param name="obj"></param>
-        public void Serialize(Stream s, object obj)
+        public void Serialize<T>(Stream s, T obj)
         {
             BinaryFormatter bf = new BinaryFormatter();
             bf.Serialize(s, obj);

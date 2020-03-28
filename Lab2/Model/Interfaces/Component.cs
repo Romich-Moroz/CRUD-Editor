@@ -4,7 +4,9 @@ using System.Reflection;
 
 namespace Lab2
 {
-    [System.Serializable]
+    [System.Runtime.Serialization.DataContract]
+    [Serializable]
+    [System.Runtime.Serialization.KnownType("GetDerivedTypes")]
     /// <summary>
     /// Base class for all components of computer
     /// </summary>
@@ -12,6 +14,7 @@ namespace Lab2
     {
         #region Types
 
+        
         /// <summary>
         /// Defines a form factor for the motherboard
         /// </summary>
@@ -45,26 +48,35 @@ namespace Lab2
         /// Defines the name of the component
         /// </summary>
         [FieldName(FieldName = "Name")]
+        [System.Runtime.Serialization.DataMember(Name = "Name")]
         protected string name;
 
         /// <summary>
         /// Defines the name of the vendor
         /// </summary>
         [FieldName(FieldName = "Vendor")]
+        [System.Runtime.Serialization.DataMember(Name = "Vendor")]
         protected string vendor;
 
         /// <summary>
         /// Defines the price segment of the component
         /// </summary>
         [FieldName(FieldName = "Price segment")]
+        [System.Runtime.Serialization.DataMember(Name = "PriceSegment")]
         protected PriceSegment priceSegment;
         /// <summary>
         /// Defines the price of the component
         /// </summary>
         [FieldName(FieldName = "Price")]
+        [System.Runtime.Serialization.DataMember(Name = "Price")]
         protected double price;
 
         #endregion
+
+        private static Type[] GetDerivedTypes()
+        {
+            return Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(Component))).ToArray();
+        }
 
         #region Public Methods
 

@@ -4,9 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Data;
 using System.Windows.Input;
 using Microsoft.Win32;
 
@@ -297,14 +295,7 @@ namespace Lab2
         /// <param name="collection">Collection to serialize</param>
         private void SaveComponentCollection(ObservableCollection<Component> collection)
         {
-            SaveFileDialog fd = new SaveFileDialog();
-            fd.Filter = "Binary serialization file (*.bin)|*.bin|Xml serialization file (*.xml)|*.xml|Custom serialization file (*.csf)|*.csf";
-            fd.InitialDirectory = Directory.GetCurrentDirectory();
-            if (fd.ShowDialog() == true)
-            {
-                ISerializer s = SerializerFactory.Create<BinarySerializer>();
-                s.Serialize(fd.OpenFile(), collection);
-            }
+            Model.SaveCollection(collection);
         }
 
         /// <summary>
@@ -312,13 +303,10 @@ namespace Lab2
         /// </summary>
         private void OpenComponentCollection(object dummy)
         {
-            OpenFileDialog fd = new OpenFileDialog();
-            fd.Filter = "Binary serialization file (*.bin)|*.bin|Xml serialization file (*.xml)|*.xml|Custom serialization file (*.csf)|*.csf";
-            fd.InitialDirectory = Directory.GetCurrentDirectory();
-            if (fd.ShowDialog() == true)
+            ObservableCollection<Component> tmp = Model.OpenCollection();         
+            if (tmp != null)
             {
-                ISerializer s = SerializerFactory.Create<BinarySerializer>();
-                ComponentCollection = s.Deserialize(fd.OpenFile()) as ObservableCollection<Component>;
+                ComponentCollection = tmp;
                 ComputerCollection = new ObservableCollection<ComputerItem>();
                 foreach (Component c in ComponentCollection)
                 {
@@ -327,8 +315,8 @@ namespace Lab2
                         ComputerCollection.Add(new ComputerItem(c as Computer, new ObservableCollection<ComponentField>(Model.GetAllFieldsOfComponentByTypeName(CreatableTypes, c.GetType().Name).Select(f => new ComponentField(f, f.GetValue(c))))));
                     }
                 }
-                
             }
+            
         }
         
     }

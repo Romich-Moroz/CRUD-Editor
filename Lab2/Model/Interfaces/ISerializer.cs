@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Lab2
 {
@@ -9,13 +10,13 @@ namespace Lab2
         /// </summary>
         /// <param name="s"></param>
         /// <param name="obj"></param>
-        void Serialize(Stream s, object obj);
+        void Serialize<T>(Stream s, T obj);
 
         /// <summary>
         /// Deserializes object
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
-        object Deserialize(Stream s);
+        T Deserialize<T>(Stream s);
     }
 }
