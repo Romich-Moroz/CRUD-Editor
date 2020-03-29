@@ -23,19 +23,40 @@ namespace Lab2
     /// EndClass;
     /// 
     */
+    /// <summary>
+    /// Provides serialization in custom format
+    /// </summary>
     [Serialization(TypeDescription = "Custom serialization file (*.csf)|*.csf")]
     class CustomSerializer : ISerializer
     {
-
+        /// <summary>
+        /// Contains amount of tabs in current line
+        /// </summary>
         private int tabCount;
+
+        /// <summary>
+        /// Stuct for storing line parsing results
+        /// </summary>
         private struct ParseResult
         {
+            /// <summary>
+            /// Specifies what type of line was read
+            /// </summary>
             public enum ParseResultEnum { Container, ContainerEnd, Class, ComplexField, ClassEnd, Field };
 
+            /// <summary>
+            /// Specifies what type of line was read
+            /// </summary>
             public ParseResultEnum lastParseResult;
 
+            /// <summary>
+            /// Contains typeName for parser to create
+            /// </summary>
             public string typeName;
 
+            /// <summary>
+            /// Contains value to assing to type
+            /// </summary>
             public string value;
 
             public ParseResult(ParseResultEnum r, string type, string value)
@@ -45,12 +66,23 @@ namespace Lab2
                 this.value = value;
             }
         }
+        /// <summary>
+        /// Contains info about last parsing operation
+        /// </summary>
         private ParseResult lastParse;
 
+        /// <summary>
+        /// Contains all line from serialized file
+        /// </summary>
         private List<string> textEntries;
         
         
-
+        /// <summary>
+        /// Deserializes file
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public T Deserialize<T>(Stream s)
         {
 
@@ -61,6 +93,11 @@ namespace Lab2
             }
         }
 
+        /// <summary>
+        /// Parses text entries and creates required objects
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         private T Parse<T>()
         {
             lastParse = ParseLine(textEntries[0]);
@@ -114,6 +151,12 @@ namespace Lab2
             throw new InvalidDataException("Invalid data format");
         }
 
+        /// <summary>
+        /// Serializes object
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="s"></param>
+        /// <param name="obj"></param>
         public void Serialize<T>(Stream s, T obj)
         {
             
@@ -141,6 +184,14 @@ namespace Lab2
             } 
         }
 
+        /// <summary>
+        /// Recursive function for representing object as serialized string
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <param name="name"></param>
+        /// <param name="complexFieldName"></param>
+        /// <returns></returns>
         private string GetSerializationString<T>(T obj, string name, string complexFieldName)
         {
             string result = null;
@@ -202,11 +253,21 @@ namespace Lab2
             return result;
         }
 
+        /// <summary>
+        /// Gets fields infos of specified object
+        /// </summary>
+        /// <param name="o"></param>
+        /// <returns></returns>
         private FieldInfo[] GetFieldInfos(object o)
         {
             return o.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
 
+        /// <summary>
+        /// Returns specified number of tabs
+        /// </summary>
+        /// <param name="tabCount"></param>
+        /// <returns></returns>
         private string GetTabs(int tabCount)
         {
             string tmp = null;
@@ -217,11 +278,21 @@ namespace Lab2
             return tmp;
         }
 
+        /// <summary>
+        /// Check if type is primitive or complex
+        /// </summary>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private bool IsTypePrimitive(Type t)
         {
             return t.IsPrimitive || t.Equals(typeof(string)) || t.IsEnum || t.Equals(typeof(decimal));
         }
 
+        /// <summary>
+        /// Parses current line to determine results
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private ParseResult ParseLine(string line)
         {
             line = line.Trim();
@@ -259,6 +330,12 @@ namespace Lab2
             throw new FileFormatException("Invalid file format");           
         }
 
+        /// <summary>
+        /// Creates instance of specified type using type name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="name"></param>
+        /// <returns></returns>
         private T CreateInstance<T>(string name)
         {
             Type type = Type.GetType(name);
@@ -292,11 +369,22 @@ namespace Lab2
             throw new Exception("Cannot create unknown type");
         }
 
+        /// <summary>
+        /// Gets tabs count in specified line
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private int GetTabsCount(string line)
         {
             return line.Where(c => c == '\t').Count();
         }
 
+        /// <summary>
+        /// Converts string value to object
+        /// </summary>
+        /// <param name="fInfo"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         private object GetValidValue(FieldInfo fInfo, string value)
         {
             object assignValue = null;
@@ -326,6 +414,12 @@ namespace Lab2
             return assignValue;
         }
 
+        /// <summary>
+        /// Creates generic method 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="argType"></param>
+        /// <returns></returns>
         private MethodInfo GetGenericMethod(string name, Type argType)
         {
             MethodInfo method = this.GetType().GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance);
