@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -80,7 +81,6 @@ namespace Lab2
                     {
                         SelectedComponentFieldsList = null;
                     }
-                    FilteredComponentsCollection = FilterCollectionByType(ComponentCollection, SelectedComponentType);
                     SelectedComponentInstance = null;
                 }               
             }
@@ -105,13 +105,10 @@ namespace Lab2
                     if (value != null)
                     {
                         ReadComponent(value);
-                    }
-                                     
+                    }                                        
                 }
             }
         }
-
-        public ObservableCollection<Component> FilteredComponentsCollection { get; set; }
 
         /// <summary>
         /// Defines a collection of fields that should be displayed
@@ -150,7 +147,6 @@ namespace Lab2
                 {
                     ComputerCollection.Add(new ComputerItem(comp as Computer, SelectedComponentFieldsList));
                 }
-                FilteredComponentsCollection = FilterCollectionByType(ComponentCollection, SelectedComponentType);
             }
             else
             {
@@ -312,7 +308,23 @@ namespace Lab2
                 {
                     if (c.GetType() == typeof(Computer))
                     {
-                        ComputerCollection.Add(new ComputerItem(c as Computer, new ObservableCollection<ComponentField>(Model.GetAllFieldsOfComponentByTypeName(CreatableTypes, c.GetType().Name).Select(f => new ComponentField(f, f.GetValue(c))))));
+                        ObservableCollection<FieldInfo> fInfos = Model.GetAllFieldsOfComponentByTypeName(CreatableTypes, c.GetType().Name);
+
+                        ObservableCollection<ComponentField> componentFields = new ObservableCollection<ComponentField>(fInfos.Select(f => new ComponentField(f, f.GetValue(c))));
+
+                        //Making sure that all fields inside computer are the same as in collection otherwise changing collection wont change
+                        for (int i = 0; i < componentFields.Count; i++) 
+                        {
+                            if (componentFields[i].fieldValue is Component)
+                            {
+                                Component comp = ComponentCollection.Single(cmp => cmp.GetType() == componentFields[i].fieldValue.GetType() && cmp.GetName() == ((Component)componentFields[i].fieldValue).GetName());
+                                fInfos[i].SetValue(c, comp);
+                                componentFields[i].fieldValue = comp;
+                            }
+                            
+                        }
+
+                        ComputerCollection.Add(new ComputerItem(c as Computer, componentFields));
                     }
                 }
             }

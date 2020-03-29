@@ -97,11 +97,14 @@
                 </Grid.RowDefinitions>
                 <TextBlock Text="Computers List" Margin="4" HorizontalAlignment="Center" FontWeight="Bold" Grid.Row="0"/>
                 <TreeView x:Name="ComputersList" ItemsSource="{Binding ComputerCollection}" SelectedItemChanged="ComputersList_SelectedItemChanged" Grid.Row="1">
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Fields}">
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Fields}" DataType="{x:Type local:ComputerItem}">
                             <TextBlock Text="{Binding Converter={StaticResource ComputerItemToNameConverter}}"/>
                         </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding}" DataType="{x:Type local:ComponentField}">
+                            <TextBlock Text="{Binding Converter={StaticResource ComputerItemToNameConverter}}"/>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
                 </TreeView>
             </Grid>
         </Border>
