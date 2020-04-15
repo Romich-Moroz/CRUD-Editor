@@ -57,6 +57,10 @@ namespace Lab2
             return c;
         }
 
+        /// <summary>
+        /// Gets dictionary with all available serializers
+        /// </summary>
+        /// <returns></returns>
         static public Dictionary<string,Type> GetSerializerDictionary() 
         {
             Dictionary<string, Type> result = new Dictionary<string, Type>();
@@ -72,6 +76,10 @@ namespace Lab2
             return result;
         }
 
+        /// <summary>
+        /// Saves collection into file
+        /// </summary>
+        /// <param name="collection"></param>
         static public void SaveCollection(ObservableCollection<Component> collection)
         {
             SaveFileDialog fd = new SaveFileDialog();
@@ -110,6 +118,10 @@ namespace Lab2
             }
         }
 
+        /// <summary>
+        /// Loads collection from file
+        /// </summary>
+        /// <returns></returns>
         static public ObservableCollection<Component> OpenCollection()
         {
             OpenFileDialog fd = new OpenFileDialog();
@@ -149,6 +161,10 @@ namespace Lab2
             return null;
         }
 
+        /// <summary>
+        /// Gets all plugins into dictionary
+        /// </summary>
+        /// <returns></returns>
         static public Dictionary<string, Type> GetPluginsDictionary()
         {
             Dictionary<string, Type> result = new Dictionary<string, Type>();
@@ -168,6 +184,10 @@ namespace Lab2
             return result;   
         }
 
+        /// <summary>
+        /// Gets all plugin names
+        /// </summary>
+        /// <returns></returns>
         static public ObservableCollection<string> GetPluginNames()
         {
             return new ObservableCollection<string>(plugins.Keys);
@@ -194,6 +214,10 @@ namespace Lab2
             return serializerString;
         }
 
+        /// <summary>
+        /// Gets all file formats for open/save dialog
+        /// </summary>
+        /// <returns></returns>
         static private string GetDialogFormats()
         {
             string result = string.Join("|", serializers.Keys);

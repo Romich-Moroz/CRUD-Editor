@@ -129,6 +129,9 @@ namespace Lab2
         /// </summary>
         public ObservableCollection<Component> ComponentCollection { get; set; } = new ObservableCollection<Component>();
 
+        /// <summary>
+        /// Contains all available plugins
+        /// </summary>
         public ObservableCollection<string> PluginsCollection { get; private set; } = Model.GetPluginNames();
 
         #endregion
