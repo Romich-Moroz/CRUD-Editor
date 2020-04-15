@@ -5,12 +5,21 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Win32;
+using PluginSupport;
+using System.Text;
 
 namespace Lab2
 {
     static class Model
     {
+
+        static private Dictionary<string, Type> plugins = GetPluginsDictionary();
+
+        /// <summary>
+        /// Contains all available serializers for usage
+        /// </summary>
         static private Dictionary<string, Type> serializers = GetSerializerDictionary();
+
         /// <summary>
         /// Returns a collection of fieldInfos about each class that should be manually created in order to create class of final type
         /// </summary>
@@ -66,31 +75,141 @@ namespace Lab2
         static public void SaveCollection(ObservableCollection<Component> collection)
         {
             SaveFileDialog fd = new SaveFileDialog();
-            fd.Filter = string.Join("|", serializers.Keys);
+            fd.Filter = GetDialogFormats();
             fd.InitialDirectory = Directory.GetCurrentDirectory();
             if (fd.ShowDialog() == true)
             {
                 string[] filters = fd.Filter.Split('|');
-                string selectedFilter = filters[(fd.FilterIndex - 1) * 2] + "|" + filters[(fd.FilterIndex - 1) * 2 + 1];
-                ISerializer s = Activator.CreateInstance(serializers[selectedFilter]) as ISerializer;
-                s.Serialize(fd.OpenFile(), collection);
+                int serializerIndex = (fd.FilterIndex - 1) % serializers.Count;
+                Type t = serializers.ElementAt(serializerIndex).Value;
+                ISerializer s = Activator.CreateInstance(t) as ISerializer;
+                IPlugin plugin = null;
+                if (fd.FilterIndex > serializers.Count)
+                {
+                    int pluginIndex = 0;
+                    for (int i = serializers.Count; i < filters.Length / 2; i += serializers.Count, pluginIndex++) 
+                    {
+                        if (fd.FilterIndex > i)
+                        {
+                            break;
+                        }
+                    }
+                    Type tPlugin = plugins.ElementAt(pluginIndex).Value;
+                    plugin = Activator.CreateInstance(tPlugin) as IPlugin;
+                }
+                using (var ms = new MemoryStream())
+                {
+                    s.Serialize(ms, collection);
+                    byte[] buf = ms.ToArray();
+                    if (plugin != null)
+                    {
+                        buf = Encoding.Default.GetBytes(plugin.Encode(Encoding.Default.GetString(buf)));
+                    }
+                    File.WriteAllBytes(fd.FileName, buf);
+                }
             }
         }
 
         static public ObservableCollection<Component> OpenCollection()
         {
             OpenFileDialog fd = new OpenFileDialog();
-            fd.Filter = string.Join("|", serializers.Keys);
+            fd.Filter = GetDialogFormats();
             fd.InitialDirectory = Directory.GetCurrentDirectory();
             if (fd.ShowDialog() == true)
             {
                 string[] filters = fd.Filter.Split('|');
-                string selectedFilter = filters[(fd.FilterIndex - 1) * 2] + "|" + filters[(fd.FilterIndex - 1) * 2 + 1];
-                ISerializer s = Activator.CreateInstance(serializers[selectedFilter]) as ISerializer;
-                return s.Deserialize<ObservableCollection<Component>>(fd.OpenFile());
+
+                int serializerIndex = (fd.FilterIndex - 1) % serializers.Count;
+                Type t = serializers.ElementAt(serializerIndex).Value;
+                ISerializer s = Activator.CreateInstance(t) as ISerializer;
+                IPlugin plugin = null;
+                if (fd.FilterIndex > serializers.Count)
+                {
+                    int pluginIndex = 0;
+                    for (int i = serializers.Count; i < filters.Length / 2; i += serializers.Count, pluginIndex++)
+                    {
+                        if (fd.FilterIndex > i)
+                        {
+                            break;
+                        }
+                    }
+                    Type tPlugin = plugins.ElementAt(pluginIndex).Value;
+                    plugin = Activator.CreateInstance(tPlugin) as IPlugin;
+                }
+                byte[] buf = File.ReadAllBytes(fd.FileName);
+                if (plugin != null)
+                {
+                    buf = Encoding.Default.GetBytes(plugin.Decode(Encoding.Default.GetString(buf)));                    
+                }
+                using (MemoryStream ms = new MemoryStream(buf))
+                {
+                    return s.Deserialize<ObservableCollection<Component>>(ms);
+                }                
             }
             return null;
         }
 
+        static public Dictionary<string, Type> GetPluginsDictionary()
+        {
+            Dictionary<string, Type> result = new Dictionary<string, Type>();
+            foreach (string str in Directory.GetFiles(Directory.GetCurrentDirectory() + "\\Plugins\\"))
+            {
+                try
+                {
+                    Assembly asm = Assembly.LoadFrom(str);
+                    Type plugin = asm.GetTypes().Single(t => t.GetInterfaces().Contains(typeof(IPlugin)));
+                    result.Add(plugin.Name, plugin);
+                }
+                catch
+                {
+
+                }
+            }
+            return result;   
+        }
+
+        static public ObservableCollection<string> GetPluginNames()
+        {
+            return new ObservableCollection<string>(plugins.Keys);
+        }
+
+        /// <summary>
+        /// Creates a new string for filter from base serializer string and applied plugin
+        /// </summary>
+        /// <param name="serializerString"></param>
+        /// <param name="pluginName"></param>
+        /// <param name="pluginExt"></param>
+        /// <returns></returns>
+        static private string CombinePluginAndSerializer(string serializerString, string pluginName, string pluginExt)
+        {
+            //Binary serialization file(*.bin)|*.bin
+            serializerString = string.Format("({0}) {1}", pluginName, serializerString);
+            for (int i = 1; i < serializerString.Length; i++)
+            {
+                if (serializerString[i-1] == '*' && serializerString[i] == '.')
+                {
+                    serializerString = serializerString.Insert(i+1, pluginExt);
+                }
+            }
+            return serializerString;
+        }
+
+        static private string GetDialogFormats()
+        {
+            string result = string.Join("|", serializers.Keys);
+            foreach (string pluginName in plugins.Keys)
+            {
+                foreach (string serializerName in serializers.Keys)
+                {
+                    ExtensionAttribute attribute = (ExtensionAttribute)plugins[pluginName].GetCustomAttribute(typeof(ExtensionAttribute));
+                    if (attribute == null)
+                    {
+                        throw new ArgumentNullException("Extension attribute for plugin " + pluginName + " is not assigned");
+                    }
+                    result += "|" + CombinePluginAndSerializer(serializerName, pluginName, attribute.Extension);
+                }
+            }
+            return result;
+        }
     }
 }

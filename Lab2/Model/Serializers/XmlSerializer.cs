@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PluginSupport;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.Serialization;
@@ -12,7 +13,6 @@ namespace Lab2
         {
             DataContractSerializer xmls = new DataContractSerializer(typeof(T));
             T tmp = (T)xmls.ReadObject(s);
-            s.Close();
             return tmp;
         }
 
@@ -20,7 +20,6 @@ namespace Lab2
         {
             DataContractSerializer xmls = new DataContractSerializer(typeof(T));          
             xmls.WriteObject(s, obj);
-            s.Close();
         }
     }
 }

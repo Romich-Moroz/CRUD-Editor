@@ -87,6 +87,9 @@
                 <MenuItem Header="Open" Command="{Binding OpenCommand}"/>
                 <MenuItem Header="Save"  Command="{Binding SaveCommand}" CommandParameter="{Binding ComponentCollection}"/>
             </MenuItem>
+            <MenuItem Header="Plugins List" ItemsSource="{Binding PluginsCollection}"/>
+
+
         </Menu>
         <!--Left column content-->
         <Border BorderBrush="Black" BorderThickness="1" Grid.Column="0" Grid.Row="1">

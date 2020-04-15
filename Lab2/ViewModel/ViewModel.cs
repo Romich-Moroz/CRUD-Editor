@@ -129,6 +129,8 @@ namespace Lab2
         /// </summary>
         public ObservableCollection<Component> ComponentCollection { get; set; } = new ObservableCollection<Component>();
 
+        public ObservableCollection<string> PluginsCollection { get; private set; } = Model.GetPluginNames();
+
         #endregion
 
         #region Private Methods
@@ -312,7 +314,7 @@ namespace Lab2
 
                         ObservableCollection<ComponentField> componentFields = new ObservableCollection<ComponentField>(fInfos.Select(f => new ComponentField(f, f.GetValue(c))));
 
-                        //Making sure that all fields inside computer are the same as in collection otherwise changing collection wont change
+                        //Making sure that all fields inside computer are the same as in collection otherwise changing collection wont change computer components
                         for (int i = 0; i < componentFields.Count; i++) 
                         {
                             if (componentFields[i].fieldValue is Component)

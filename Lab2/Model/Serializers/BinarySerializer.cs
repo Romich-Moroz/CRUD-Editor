@@ -1,4 +1,4 @@
-﻿using System;
+﻿using PluginSupport;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -16,7 +16,6 @@ namespace Lab2
         {
             BinaryFormatter bf = new BinaryFormatter();
             T tmp =  (T)bf.Deserialize(s);
-            s.Close();
             return tmp;
         }
 
@@ -29,7 +28,6 @@ namespace Lab2
         {
             BinaryFormatter bf = new BinaryFormatter();
             bf.Serialize(s, obj);
-            s.Close();
         }
     }
 }
