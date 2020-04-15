@@ -168,7 +168,12 @@ namespace Lab2
         static public Dictionary<string, Type> GetPluginsDictionary()
         {
             Dictionary<string, Type> result = new Dictionary<string, Type>();
-            foreach (string str in Directory.GetFiles(Directory.GetCurrentDirectory() + "\\Plugins\\"))
+            string pluginsPath = Directory.GetCurrentDirectory() + "\\Plugins\\";
+            if (!Directory.Exists(pluginsPath))
+            {
+                Directory.CreateDirectory(pluginsPath);
+            }
+            foreach (string str in Directory.GetFiles(pluginsPath))
             {
                 try
                 {

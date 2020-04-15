@@ -159,9 +159,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Plugins\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\PluginSupport\PluginSupport.csproj">
       <Project>{98603791-bb91-42c9-ad95-4cfecbdf2f7f}</Project>
